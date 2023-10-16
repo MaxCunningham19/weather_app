@@ -18,7 +18,6 @@ function massage_polution_data(data) {
 }
 
 function massage_individual_weather_time_data(data,polution) {
-
     return {
         dt: data.dt,
         time: data.dt_txt.split(' ')[1],
@@ -34,7 +33,7 @@ function massage_individual_weather_time_data(data,polution) {
         wind: data.wind,
         visibility: data.visibility,
         pop: data.pop,
-        rain: data.rain,
+        rain: (data.rain != undefined ? (data.rain.hasOwnProperty('3h')? data.rain['3h'] : 0) : 0 ),
         pm2_5: polution || -1
     }
 }
@@ -48,15 +47,20 @@ function massage_weather_data(weather_data,polution_data) {
                 times: [massage_individual_weather_time_data(weather_data[i],polution_data[weather_data[i].dt])]
             }
         } else {
-            tmp[day].times.push(massage_individual_weather_time_data(weather_data[i]))
+            tmp[day].times.push(massage_individual_weather_time_data(weather_data[i],polution_data[weather_data[i].dt]))
         }
-
     }
     return tmp
 }
 
 
 function calculate_averages(weather_data) {
+    summary = {
+        rain: 0.0,
+        temp_min: NaN,
+        temp_max: NaN,
+        max_pm2_5:NaN,
+    }
     for (key of Object.keys(weather_data)) {
         average_temp = 0.0
         feels_like = 0.0
@@ -84,9 +88,10 @@ function calculate_averages(weather_data) {
             if (weather_data[key].times[i].pm2_5 != -1){
                 pm2_5 = pm2_5 + weather_data[key].times[i].pm2_5
                 pm2_5_count = pm2_5_count + 1
+                summary.max_pm2_5 = !!summary.max_pm2_5? Math.max(weather_data[key].times[i].pm2_5,summary.max_pm2_5) : weather_data[key].times[i].pm2_5
             }
         }
-        len = weather_data[key].times.length
+        len = weather_data[key].times?.length || 0
         weather_data[key].daily_info = {
             average_temp:average_temp/len,
             feels_like:feels_like/len,
@@ -97,9 +102,12 @@ function calculate_averages(weather_data) {
             clouds: clouds/len,
             pm2_5: pm2_5_count==0?-1:pm2_5/pm2_5_count
         }
+        summary.rain = summary.rain + rain
+        summary.temp_max = !!summary.temp_max? Math.min(summary.temp_max,temp_max) : temp_max
+        summary.temp_min = !!summary.temp_min? Math.min(summary.temp_min,temp_min) : temp_min
         weather_data[key].dt_str = key
     }
-    return weather_data
+    return {summary,days:weather_data}
 }
 
 router
