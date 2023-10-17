@@ -1,17 +1,18 @@
 const express = require('express');
 const bodyParser = require('body-parser');
-const path = require('path')
 const apiRouter = require('./routes/api.js')
+const PORT = 3001
+require('dotenv').config()
 
 const app = express();
-app.use(express.static('public'))
+
 
 app.use(bodyParser.urlencoded({ extended: true }));
-app.use('/api',apiRouter)
 app.use(express.static('public'))
+app.use('/api',apiRouter)
 
 
 
-app.listen(3001, () =>
-  console.log('backend listening on port 3001'),
+app.listen(PORT, () =>
+  console.log(`backend listening on port ${PORT}`),
 );

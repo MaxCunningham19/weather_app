@@ -1,17 +1,14 @@
 const express = require('express')
 const axios = require('axios')
-const bodyParser = require('body-parser');
+require('dotenv').config()
+
 const router = express.Router()
-const API_key = "33bd691dd3447f1945920c52f505ad37"
 
-// http://api.openweathermap.org/geo/1.0/direct?q=dublin,,&appid=33bd691dd3447f1945920c52f505ad37
-
-// http://api.openweathermap.org/geo/1.0/direct?q={city name},{state code},{country code}&limit={limit}&appid={API key}
 router
     .route('/:location')
     .get((req, res) => {
         if (req.params.location !== "") {
-            axios.get(`http://api.openweathermap.org/geo/1.0/direct?q=${req.params.location},&limit=${8}&appid=${API_key}`).then(
+            axios.get(`http://api.openweathermap.org/geo/1.0/direct?q=${req.params.location},&limit=${8}&appid=${process.env.API_KEY}`).then(
                 (resp) => {
                     if (resp.status!= 200){
                         res.status(resp.status).json({locations:[],err:"could not find location"})

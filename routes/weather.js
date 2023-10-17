@@ -1,14 +1,9 @@
 const express = require('express')
 const axios = require('axios')
+require('dotenv').config()
+
 const router = express.Router()
-const API_key = "33bd691dd3447f1945920c52f505ad37"
 
-
-/* output
-  {
-    "1605182400": 0.5,
-  }
-*/
 function massage_polution_data(data) {
     tmp = {}
     for (i in data) {
@@ -76,7 +71,7 @@ function calculate_averages(weather_data) {
             average_temp = average_temp + weather_data[key].times[i].main.temp
 
             feels_like = feels_like + weather_data[key].times[i].main.feels_like
-            rain = rain + (weather_data[key].times[i].rain != undefined ? (weather_data[key].times[i].rain.hasOwnProperty('3h')? weather_data[key].times[i].rain['3h'] : 0) : 0 )
+            rain = rain + weather_data[key].times[i].rain
 
             clouds = clouds + weather_data[key].times[i].clouds.all
 
@@ -103,7 +98,7 @@ function calculate_averages(weather_data) {
             pm2_5: pm2_5_count==0?-1:pm2_5/pm2_5_count
         }
         summary.rain = summary.rain + rain
-        summary.temp_max = !!summary.temp_max? Math.min(summary.temp_max,temp_max) : temp_max
+        summary.temp_max = !!summary.temp_max? Math.max(summary.temp_max, temp_max) : temp_max
         summary.temp_min = !!summary.temp_min? Math.min(summary.temp_min,temp_min) : temp_min
         weather_data[key].dt_str = key
     }
@@ -119,14 +114,14 @@ router
             res.status(404).json({})
         }
         polution_data = {}
-        axios.get(`http://api.openweathermap.org/data/2.5/air_pollution/forecast?lat=${lat}&lon=${lon}&appid=${API_key}`).then(
+        axios.get(`http://api.openweathermap.org/data/2.5/air_pollution/forecast?lat=${lat}&lon=${lon}&appid=${process.env.API_KEY}`).then(
             (resp) => {
                 if (resp.status != 200) {
                     return
                 }
                 polution_data = massage_polution_data(resp.data.list)
             })
-        axios.get(`http://api.openweathermap.org/data/2.5/forecast?lat=${lat}&lon=${lon}&appid=${API_key}&units=metric`).then(
+        axios.get(`http://api.openweathermap.org/data/2.5/forecast?lat=${lat}&lon=${lon}&appid=${process.env.API_KEY}&units=metric`).then(
                 (resp) => {
                     if (resp.status != 200) {
                         res.status(resp.status).json({ locations: [], err: "could not find weather in location" })
