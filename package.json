@@ -1,10 +1,9 @@
 {
-  "name": "server",
+  "name": "fuccyforecast",
   "version": "1.0.0",
-  "description": "backend server for weather api",
+  "description": "Server for weather api",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
     "start": "nodemon index.js"
   },
   "keywords": [],
@@ -15,7 +14,6 @@
     "bootstrap": "^5.3.2",
     "dotenv": "^16.3.1",
     "express": "^4.18.2",
-    "nodemon": "^3.0.1",
-    "vue": "^3.3.4"
+    "nodemon": "^3.0.1"
   }
 }

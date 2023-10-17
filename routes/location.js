@@ -10,8 +10,9 @@ router
         if (req.params.location !== "") {
             axios.get(`http://api.openweathermap.org/geo/1.0/direct?q=${req.params.location},&limit=${8}&appid=${process.env.API_KEY}`).then(
                 (resp) => {
-                    if (resp.status!= 200){
-                        res.status(resp.status).json({locations:[],err:"could not find location"})
+                    if (resp.status != 200) {
+                        res.status(200).json({ locations: [], err: "could not find location" })
+                        return
                     }
                     locations = resp.data
                     locations = locations.map((loc) => {
@@ -23,12 +24,11 @@ router
                             country: loc.country
                         }
                     })
-                    // get alphabetic list of all cities in a country
                     res.header("Access-Control-Allow-Origin", '*')
-                    res.json({locations,err:undefined})
+                    res.json({ locations, err: undefined })
                 })
         } else {
-            res.status(404).json({ err: "no location" })
+            res.status(200).json({ err: "no location given" })
         }
     });
 

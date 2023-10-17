@@ -13,10 +13,13 @@
     integrity="sha384-T3c6CoIi6uLrA9TneNEoa7RxnatzjcDSCmG1MXxSR1GAsXEV/Dwwykc2MPK8M2HN" crossorigin="anonymous">
 
 <div id="app">
-    <div class="container error-container" v-if="err">
+    <div class="container error-container" v-if="!!err">
         <h1 class="row">ERRRRR :&#40;</h1>
-        <p class="row">Sorry something isn"t working </p>
-        <p class="row"><a href="/">Maybe try reloading?</a></p>
+        <p class="row">Sorry something isn't working</p>
+        <p class="row">revieced error: {{err}}</p>
+        <p class="row">
+            <a href="/">Try reloading?</a>
+        </p>
     </div>
     <div v-else class="container app-container">
         <div class="row header">
@@ -220,10 +223,12 @@
                 </h2>
             </div>
             <div class="row">
-                <div class="col summary-box" v-if="summary.rain>2.5" :style="'background-color:'+ selectRainColor(summary.rain)+';'">
+                <div class="col summary-box" v-if="summary.rain>2.5"
+                    :style="'background-color:'+ selectRainColor(summary.rain)+';'">
                     <p>Bring a coat and umbrella there is going to be {{Math.round(summary.rain*10)/10}}mm of rain</p>
                 </div>
-                <div class="col summary-box" v-else-if="summary.rain>1.0" :style="'background-color:'+ selectRainColor(summary.rain)+';'">
+                <div class="col summary-box" v-else-if="summary.rain>1.0"
+                    :style="'background-color:'+ selectRainColor(summary.rain)+';'">
                     <p>Bring a coat or umbrella there is going to be {{Math.round(summary.rain*10)/10}}mm of rain</p>
                 </div>
                 <div class="col summary-box" v-else :style="'background-color:'+ selectRainColor(summary.rain)+';'">
@@ -247,11 +252,13 @@
                         {{Math.round(summary.temp_min*10)/10}}&deg;C and {{Math.round(summary.temp_max*10)/10}}&deg;C
                     </p>
                 </div>
-                <div class="col summary-box" v-if="summary.max_pm2_5>10" :style="'background-color:'+ selectAirQualityColor(summary.max_pm2_5)+';'">
+                <div class="col summary-box" v-if="summary.max_pm2_5>10"
+                    :style="'background-color:'+ selectAirQualityColor(summary.max_pm2_5)+';'">
                     <p>Bring a mask the PM2.5 will get as high as {{Math.round(summary.max_pm2_5*10)/10}}
                         μg/m<sup>3</sup> </p>
                 </div>
-                <div class="col summary-box" v-else :style="'background-color:'+ selectAirQualityColor(summary.max_pm2_5)+';'">
+                <div class="col summary-box" v-else
+                    :style="'background-color:'+ selectAirQualityColor(summary.max_pm2_5)+';'">
                     <p>The air quality is going to be good, so leave the mask at home</p>
                 </div>
             </div>
@@ -290,6 +297,33 @@
         --t-d-2: #252525;
     }
 
+    .error-container {
+        padding: 20px;
+        background-color: var(--b-1);
+        border: 1px solid --b-2p5;
+        border-radius: 5px;
+        max-width: 400px;
+        margin: 0 auto;
+        margin-top: 60px;
+        font-size: 18px;
+    }
+
+    /* Style for the error message */
+    .error-container h1 {
+        color: var(--w-5);
+        font-size: 36px;
+    }
+
+    /* Style for the error description and links */
+    .error-container p {
+        color: var(--t-d-2);
+        margin: 10px 0;
+    }
+    .error-container a {
+        margin: 10px 0;
+        text-decoration:wavy;
+        color: var(--c-6)
+    }
 
     body {
         color: var(--t-l-1);
@@ -323,6 +357,7 @@
 
     .search-container {
         margin-bottom: 10px;
+        min-width: 700px
     }
 
     .no-search-result {
@@ -381,6 +416,10 @@
         background-color: var(--b-2p5);
     }
 
+    .weather-container {
+        min-width: 700px;
+    }
+
     .weather-result-header {
         margin-bottom: 10px;
         color: var(--t-l-3);
@@ -432,7 +471,7 @@
         background-color: var(--b-3);
         border-radius: 5px;
         border-color: var(--b-4);
-        min-width: 30%;
+        min-width: 100px;
         text-wrap: wrap;
     }
 </style>
@@ -451,7 +490,7 @@
                 weatherInfo: undefined,
                 summary: undefined,
                 noResults: false,
-                err: false
+                err: undefined,
             }
         },
         methods: {
@@ -464,7 +503,7 @@
                     axios.get(BEURL + "/locations/" + this.searchString.split(" ").join("_")).then(
                         (res) => {
                             if (!!res.data.err) {
-                                this.err = true
+                                this.err = res.data.err
                             }
                             this.locations = res.data.locations
                             this.noResults = res.data.locations.length == 0
@@ -472,7 +511,7 @@
                         }
                     )
                 } catch (err) {
-                    this.err = true
+                    this.err = err
                 }
             },
             show(lat, lon) {
@@ -480,7 +519,7 @@
                     axios.get(BEURL + "/weather/" + lat + "/" + lon).then(
                         (res) => {
                             if (!!res.data.err) {
-                                this.err = true
+                                this.err = res.data.err
                             }
                             this.daySelected = undefined
                             this.summary = res.data.summary
@@ -489,7 +528,7 @@
                         }
                     )
                 } catch (err) {
-                    this.err = true
+                    this.err = err
                 }
             },
             selectTempColor(temp) {
@@ -513,7 +552,7 @@
                     return 'var(--w-4)'
                 }
                 return 'var(--w-5)'
-            }, 
+            },
             selectAirQualityColor(pm2_5) {
                 if (pm2_5 < 2.0) {
                     return 'white'

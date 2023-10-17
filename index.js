@@ -6,12 +6,9 @@ require('dotenv').config()
 
 const app = express();
 
-
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(express.static('public'))
-app.use('/api',apiRouter)
-
-
+app.use('/api', apiRouter)
 
 app.listen(PORT, () =>
   console.log(`backend listening on port ${PORT}`),

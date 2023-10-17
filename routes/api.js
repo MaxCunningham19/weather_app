@@ -4,7 +4,7 @@ const weatherRouter = require('./weather')
 
 const router = express.Router();
 
-router.use('/locations',citiesRouter)
-router.use('/weather',weatherRouter)
+router.use('/locations', citiesRouter)
+router.use('/weather', weatherRouter)
 
-  module.exports = router
+module.exports = router
