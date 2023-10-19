@@ -108,20 +108,21 @@ function calculate_averages(weather_data) {
 router
     .route('/:lat/:lon')
     .get((req, res) => {
+        try {
         lat = Number(req.params.lat)
         lon = Number(req.params.lon)
         if (!lat || !lon) {
             res.status(404).json({})
         }
         polution_data = {}
-        axios.get(`http://api.openweathermap.org/data/2.5/air_pollution/forecast?lat=${lat}&lon=${lon}&appid=${process.env.API_KEY}`).then(
+        axios.get(`http://api.openweathermap.org/data/2.5/air_pollution/forecast?lat=${lat}&lon=${lon}&appid=${process.env.OPENWEATHERMAP_API_KEY}`).then(
             (resp) => {
                 if (resp.status != 200) {
                     res.status(200).json({ locations: [], err: "could not find weather in location" })
                     return
                 }
                 polution_data = massage_polution_data(resp.data.list)
-                axios.get(`http://api.openweathermap.org/data/2.5/forecast?lat=${lat}&lon=${lon}&appid=${process.env.API_KEY}&units=metric`).then(
+                axios.get(`http://api.openweathermap.org/data/2.5/forecast?lat=${lat}&lon=${lon}&appid=${process.env.OPENWEATHERMAP_API_KEY}&units=metric`).then(
                     (resp) => {
                         if (resp.status != 200) {
                             res.status(200).json({ locations: [], err: "could not find weather in location" })
@@ -131,6 +132,9 @@ router
                         res.json(calculate_averages(massage_weather_data(resp.data.list, polution_data)))
                     })
             })
+        } catch(err){
+            res.status(200).json({ locations: [], err: err })
+        }
     });
 
 module.exports = router

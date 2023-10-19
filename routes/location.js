@@ -7,8 +7,8 @@ const router = express.Router()
 router
     .route('/:location')
     .get((req, res) => {
-        if (req.params.location !== "") {
-            axios.get(`http://api.openweathermap.org/geo/1.0/direct?q=${req.params.location},&limit=${8}&appid=${process.env.API_KEY}`).then(
+        try {
+            axios.get(`http://api.openweathermap.org/geo/1.0/direct?q=${req.params.location},&limit=${8}&appid=${process.env.OPENWEATHERMAP_API_KEY}`).then(
                 (resp) => {
                     if (resp.status != 200) {
                         res.status(200).json({ locations: [], err: "could not find location" })
@@ -27,8 +27,8 @@ router
                     res.header("Access-Control-Allow-Origin", '*')
                     res.json({ locations, err: undefined })
                 })
-        } else {
-            res.status(200).json({ err: "no location given" })
+        } catch (err) {
+            res.status(200).json({ locations: [], err })
         }
     });
 

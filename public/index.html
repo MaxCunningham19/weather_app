@@ -34,13 +34,13 @@
                 <button class="col-4 search-button" @click="search()">
                     Search
                 </button>
-                <button class="col-1 x-button align-items-end" v-if="!!weatherInfo && locationSelected"
-                    @click="this.locationSelected=false">
+                <button class="col-1 x-button align-items-end" v-if="!!weatherInfo && !!locationSelected"
+                    @click="this.locationSelected=undefined">
                     X
                 </button>
             </div>
             <div class="row search-results" v-if="!locationSelected" v-for="location in locations">
-                <div class="row search-result" @click="show(location.lat,location.lon)">
+                <div class="row search-result" @click="show(location.lat,location.lon,location.name+' - '+location.country)">
                     <div class="row">
                         <div class="col-6">
                             {{location.name}}&nbsp;&nbsp;&nbsp;&nbsp;{{!!location.state?location.state:""}}
@@ -59,7 +59,10 @@
                 </div>
             </div>
         </div>
-        <div class="container weather-container" v-if="!!weatherInfo && locationSelected">
+        <div class="container weather-container" v-if="!!weatherInfo && !!locationSelected">
+            <div class="row">
+                <h3 v-if="!!locationSelected">{{locationSelected}}</h3>
+            </div>
             <div class="row weather-result-header">
                 <div class="col-1 ">
                     Feel
@@ -132,7 +135,8 @@
                     {{Math.round(day.daily_info.average_temp)}}&deg;C
                 </div>
                 <div class="col-3 ">
-                    {{Math.floor(day.daily_info.temp_min)}}&deg;C&nbsp;<>&nbsp;{{Math.round(day.daily_info.temp_max)}}&deg;C&nbsp;
+                    {{Math.floor(day.daily_info.temp_min)}}&deg;C&nbsp;<>
+                        &nbsp;{{Math.round(day.daily_info.temp_max)}}&deg;C&nbsp;
                 </div>
                 <div class="col-1">
                     <div v-if="day.daily_info.pm2_5!=-1">
@@ -195,7 +199,8 @@
                             {{Math.round(time.main.temp)}}&deg;C
                         </div>
                         <div class="col-3 ">
-                            {{Math.floor(time.main.temp_min)}}&deg;C&nbsp;<>&nbsp;{{Math.round(time.main.temp_max)}}&deg;C&nbsp;
+                            {{Math.floor(time.main.temp_min)}}&deg;C&nbsp;<>
+                                &nbsp;{{Math.round(time.main.temp_max)}}&deg;C&nbsp;
                         </div>
                         <div class="col-1">
                             <div v-if="time.pm2_5!=-1">
@@ -217,7 +222,7 @@
                 </div>
             </div>
         </div>
-        <div class="container summary-table" v-if="!!weatherInfo && locationSelected">
+        <div class="container summary-table" v-if="!!weatherInfo && !!locationSelected">
             <div class="row summary-table-header">
                 <h2>Planning Pal <p style="font-size:15px">Helping you plan for the next 5 days</p>
                 </h2>
@@ -262,6 +267,17 @@
                     <p>The air quality is going to be good, so leave the mask at home</p>
                 </div>
             </div>
+        </div>
+        <div class="container random-quote" v-if="!!quote && !!locationSelected">
+            <h3>
+                Inspiration
+                <p style="font-size:15px">Even when the weathers bad</p>
+            </h3>
+            <p class="quote">
+                "{{quote.content}}"
+                <br/>
+                - {{quote.name}}
+            </p>
         </div>
     </div>
 </div>
@@ -319,9 +335,10 @@
         color: var(--t-d-2);
         margin: 10px 0;
     }
+
     .error-container a {
         margin: 10px 0;
-        text-decoration:wavy;
+        text-decoration: wavy;
         color: var(--c-6)
     }
 
@@ -474,6 +491,16 @@
         min-width: 100px;
         text-wrap: wrap;
     }
+
+    .random-quote {
+        margin-top:35px;
+        margin-bottom: 50px;
+        color: var(--w-6);
+    }
+
+    .random-quote .quote  {
+        color: var(--t-l-3);
+    }
 </style>
 
 <script>
@@ -484,18 +511,19 @@
         data() {
             return {
                 searchString: "!!",
-                locationSelected: false,
+                locationSelected: undefined,
                 daySelected: undefined,
                 locations: [],
                 weatherInfo: undefined,
                 summary: undefined,
                 noResults: false,
                 err: undefined,
+                quote: undefined,
             }
         },
         methods: {
             search() {
-                this.locationSelected = false
+                this.locationSelected = undefined
                 if (this.searchString == "!!") {
                     return
                 }
@@ -514,8 +542,13 @@
                     this.err = err
                 }
             },
-            show(lat, lon) {
+            show(lat, lon, name) {
                 try {
+                    axios.get(BEURL + "/quote").then(
+                        (res) => {
+                            this.quote = res.data
+                        }
+                    )
                     axios.get(BEURL + "/weather/" + lat + "/" + lon).then(
                         (res) => {
                             if (!!res.data.err) {
@@ -524,7 +557,7 @@
                             this.daySelected = undefined
                             this.summary = res.data.summary
                             this.weatherInfo = res.data.days
-                            this.locationSelected = true
+                            this.locationSelected = name
                         }
                     )
                 } catch (err) {
