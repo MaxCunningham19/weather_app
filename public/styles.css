@@ -1,0 +1,218 @@
+:root {
+    /* Primary Colors */
+    --w-1: #FFBB5C;
+    --w-2: #FF9B50;
+    --w-3: #E25E3E;
+    --w-4: #C63D2F;
+    --w-5: #ce1616;
+    --w-6: #AF0404;
+
+    --c-0: #cdedff;
+    --c-1: #bcd6e2;
+    --c-2: #91C8E4;
+    --c-3: #749BC2;
+    --c-4: #4682A9;
+    --c-5: #4492d5;
+    --c-6: #1a44b7;
+
+    --b-1: #acacac;
+    --b-2: #989898;
+    --b-2p5: #7f7f7f;
+    --b-3: #525252;
+    --b-4: #313131;
+
+    --t-l-1: #e7e7e7;
+    --t-l-2: #dedede;
+    --t-l-3: #808080;
+    --t-d-1: #544e4e;
+    --t-d-2: #252525;
+}
+
+.error-container {
+    padding: 20px;
+    background-color: var(--b-1);
+    border: 1px solid --b-2p5;
+    border-radius: 5px;
+    max-width: 400px;
+    margin: 0 auto;
+    margin-top: 60px;
+    font-size: 18px;
+}
+
+/* Style for the error message */
+.error-container h1 {
+    color: var(--w-5);
+    font-size: 36px;
+}
+
+/* Style for the error description and links */
+.error-container p {
+    color: var(--t-d-2);
+    margin: 10px 0;
+}
+
+.error-container a {
+    margin: 10px 0;
+    text-decoration: wavy;
+    color: var(--c-6)
+}
+
+body {
+    color: var(--t-l-1);
+    background-color: var(--b-4);
+    border-radius: 15px;
+}
+
+.app-container a {
+    color: inherit;
+    background-color: inherit;
+    text-decoration: none;
+    float: left;
+    margin: 0px;
+}
+
+.app-container p {
+    margin: 0px;
+}
+
+.app-container sub {
+    font-size: 10px;
+}
+
+a:hover {
+    cursor: pointer;
+}
+
+.header {
+    color: var(--w-6)
+}
+
+.search-container {
+    margin-bottom: 10px;
+    min-width: 700px
+}
+
+.no-search-result {
+    margin-bottom: 5px;
+    margin-top: 5px;
+}
+
+.search-result {
+    margin-bottom: 5px;
+    margin-top: 5px;
+    border: 1px;
+    border-radius: 15px;
+    background-color: var(--b-3);
+    border-color: var(--b-4);
+}
+
+.search-result:hover {
+    background-color: var(--b-2p5);
+    cursor: pointer;
+}
+
+.search-bar {
+    background-color: var(--b-2);
+    border-color: var(--b-3);
+    color: var(--t-l-2);
+    border-radius: 10px;
+    margin-right: 10px;
+}
+
+.search-button {
+    background-color: var(--b-2);
+    border-color: var(--b-3);
+    border-radius: 10px;
+    color: var(--t-l-2);
+    margin-right: 10px;
+}
+
+.search-bar::placeholder {
+    color: var(--t-l-2)
+}
+
+.x-button {
+    background-color: var(--b-3);
+    border-color: var(--w-6);
+    color: var(--w-5);
+    border-radius: 10px;
+    margin-right: 10px;
+}
+
+*:focus {
+    outline: 1px;
+    outline-color: var(--c-1);
+}
+
+.search-bar:hover {
+    background-color: var(--b-2p5);
+}
+
+.weather-container {
+    min-width: 700px;
+}
+
+.weather-result-header {
+    margin-bottom: 10px;
+    color: var(--t-l-3);
+    font-size: 20px;
+}
+
+.weather-result {
+    margin-bottom: 8px;
+    border-radius: 15px;
+}
+
+.weather-result:hover {
+    background-color: var(--b-2p5);
+}
+
+.weather-result-times {
+    margin-top: 10px;
+    margin-bottom: 5px;
+}
+
+.weather-result-times-line {
+    margin-top: 3px;
+    margin-bottom: 5px;
+    border-radius: 0px;
+    height: 2px;
+    margin-left: 2px;
+    margin-right: 2px;
+    background-color: var(--b-2);
+}
+
+.weather-result-time {
+    margin-top: 0px;
+    margin-bottom: 0px;
+}
+
+.summary-table {
+    margin-top: 30px;
+}
+
+.summary-table-header {
+    margin-bottom: 15px;
+    color: var(--w-6);
+}
+
+.summary-box {
+    margin: 5px;
+    padding: 10px;
+    color: var(--t-d-2);
+    background-color: var(--b-3);
+    border-radius: 5px;
+    border-color: var(--b-4);
+    min-width: 100px;
+    text-wrap: wrap;
+}
+
+.random-quote {
+    margin-top: 35px;
+    margin-bottom: 50px;
+    color: var(--w-6);
+}
+
+.random-quote .quote {
+    color: var(--t-l-3);
+}

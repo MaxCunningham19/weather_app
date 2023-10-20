@@ -1,616 +1,291 @@
-<script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/qs/6.11.2/qs.min.js"
-    integrity="sha512-vCegEXqPUYpZsTGz2lk0jaQ1psxtFeniVJACAXhMVxuoYa/N4nZkjoVFOxLwP7uGeQOoemiz7DQrIpRTj4IBPw=="
-    crossorigin="anonymous" referrerpolicy="no-referrer"></script>
-<script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.0/dist/umd/popper.min.js"
-    integrity="sha384-Q6E9RHvbIyZFJoft+2mJbHaEWldlvI9IOYy5n3zV9zzTtmI3UksdQRVvoxMfooAo"
-    crossorigin="anonymous"></script>
-<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet"
-    integrity="sha384-T3c6CoIi6uLrA9TneNEoa7RxnatzjcDSCmG1MXxSR1GAsXEV/Dwwykc2MPK8M2HN" crossorigin="anonymous">
+<!DOCTYPE html>
+<html lang="en">
 
-<div id="app">
-    <div class="container error-container" v-if="!!err">
-        <h1 class="row">ERRRRR :&#40;</h1>
-        <p class="row">Sorry something isn't working</p>
-        <p class="row">revieced error: {{err}}</p>
-        <p class="row">
-            <a href="/">Try reloading?</a>
-        </p>
-    </div>
-    <div v-else class="container app-container">
-        <div class="row header">
-            <h1>
-                FuzzyForecaster
-            </h1>
-        </div>
-        <div class="row search-container">
-            <div class="row search-container">
-                <input class="col-6 search-bar" :value="text" @input="event => this.searchString = event.target.value"
-                    placeholder="Enter location..." />
-                <button class="col-4 search-button" @click="search()">
-                    Search
-                </button>
-                <button class="col-1 x-button align-items-end" v-if="!!weatherInfo && !!locationSelected"
-                    @click="this.locationSelected=undefined">
-                    X
-                </button>
-            </div>
-            <div class="row search-results" v-if="!locationSelected" v-for="location in locations">
-                <div class="row search-result" @click="show(location.lat,location.lon,location.name+' - '+location.country)">
-                    <div class="row">
-                        <div class="col-6">
-                            {{location.name}}&nbsp;&nbsp;&nbsp;&nbsp;{{!!location.state?location.state:""}}
-                        </div>
-                    </div>
-                    <div class="row">
-                        <div class="col-6">
-                            {{location.country}}
-                        </div>
-                    </div>
-                </div>
-            </div>
-            <div class="row no-search-result" v-if="noResults">
-                <div class="col">
-                    <h3>Hmmm couldn't find any cities with that name...</h3>
-                </div>
-            </div>
-        </div>
-        <div class="container weather-container" v-if="!!weatherInfo && !!locationSelected">
-            <div class="row">
-                <h3 v-if="!!locationSelected">{{locationSelected}}</h3>
-            </div>
-            <div class="row weather-result-header">
-                <div class="col-1 ">
-                    Feel
-                </div>
-                <div class="col-3 ">
-                    Date/Time
-                </div>
-                <div class="col-1 ">
-                    Rain<sub>(mm)</sub>
-                </div>
-                <div class="col-1 ">
-                    Wind
-                </div>
-                <div class="col-1 ">
-                    Temp
-                </div>
-                <div class="col-3 ">
-                    Range
-                </div>
-                <div class="col-1 ">
-                    <a target=”_blank”
-                        href="https://ww2.arb.ca.gov/resources/inhalable-particulate-matter-and-health#:~:text=Fine%20particulate%20matter%20is%20defined,comprises%20a%20portion%20of%20PM10.">
-                        <p>PM2.5<sub>&nbsp;&#9072;</sub></p>
-                    </a>
-                </div>
-            </div>
-            <div class="row weather-result "
-                @click="daySelected===day.dt_str?daySelected=undefined:daySelected=day.dt_str"
-                v-for="day in weatherInfo">
-                <div class="col-1 ">
-                    <p v-if="day.daily_info.feels_like<3.0">
-                        &#9924;
-                    </p>
-                    <p v-else-if="day.daily_info.feels_like<8.0">
-                        &#129398;
-                    </p>
-                    <p v-else-if="day.daily_info.feels_like<15.0">
-                        &#128515;
-                    </p>
-                    <p v-else-if="day.daily_info.feels_like<22.0">
-                        &#128526;
-                    </p>
-                    <p v-else-if="day.daily_info.feels_like>=22.0">
-                        &#129397;
-                    </p>
-                </div>
-                <div class="col-3 ">{{day.dt_str}}</div>
-                <div class="col-1 ">
-                    <p v-if="day.daily_info.rain<3.2 && day.daily_info.clouds<=35">
-                        &#x2600;
-                    </p>
-                    <p v-else-if="day.daily_info.rain<3.2 && day.daily_info.clouds>35">
-                        &#x2601;
-                    </p>
-                    <p v-else-if="day.daily_info.rain<=6.0">
-                        &#x2602;
-                    </p>
-                    <p v-else-if="day.daily_info.rain>6.0 && day.daily_info.rain<14.5">
-                        &#x1F327;
-                    </p>
-                    <p v-else-if="day.daily_info.rain>=14.5">
-                        &#x1F327;
-                    </p>
-                    <p style="font-size:10px">&nbsp;{{'('+Math.round(day.daily_info.rain*10)/10+')'}}</p>
-                </div>
-                <div class="col-1 ">
-                    {{Math.round(day.daily_info.wind_speed*10)/10}}&nbsp;<sub>m/s</sub>
-                </div>
-                <div class="col-1 ">
-                    {{Math.round(day.daily_info.average_temp)}}&deg;C
-                </div>
-                <div class="col-3 ">
-                    {{Math.floor(day.daily_info.temp_min)}}&deg;C&nbsp;<>
-                        &nbsp;{{Math.round(day.daily_info.temp_max)}}&deg;C&nbsp;
-                </div>
-                <div class="col-1">
-                    <div v-if="day.daily_info.pm2_5!=-1">
-                        <img style="float:left;" v-if="day.daily_info.pm2_5>10" width="30" height="18" src="/mask.png"
-                            alt="facemask - poor air quality, you should wear a mask"
-                            style="background: transparent;" />
-                        <img style="float:left;" v-else width="20" height="20" src="/checkmark.png"
-                            alt="green checkmark - air quality is fine no mask needed"
-                            style="background: transparent; margin-left:5px;" />
-                        <p style="font-size:10px">&nbsp;{{'('+Math.round(day.daily_info.pm2_5*10)/10+')'}}
-                        </p>
-                    </div>
-                    <div v-else class=" justify-content-center" style="margin-left:7px; font-size:20px">-</div>
-                </div>
-                <div class="weather-result-times" v-if="daySelected===day.dt_str">
-                    <div class="row weather-result-times-line  justify-content-center">
-                        <div class="col"></div>
-                    </div>
-                    <div class="row weather-result-time" v-for="time in day.times">
-                        <div class="col-1 ">
-                            <p v-if="time.main.feels_like<3.0">
-                                &#9924;
-                            </p>
-                            <p v-else-if="time.main.feels_like<8.0">
-                                &#129398;
-                            </p>
-                            <p v-else-if="time.main.feels_like<15.0">
-                                &#128515;
-                            </p>
-                            <p v-else-if="time.main.feels_like<22.0">
-                                &#128526;
-                            </p>
-                            <p v-else-if="time.main.feels_like>=22.0">
-                                &#129397;
-                            </p>
-                        </div>
-                        <div class="col-3 ">{{time.time}}</div>
-                        <div class="col-1 ">
-                            <p v-if="time.rain<1 && time.clouds.all<=35">
-                                &#x2600;
-                            </p>
-                            <p v-else-if="time.rain<1 && time.clouds.all>35">
-                                &#x2601;
-                            </p>
-                            <p v-else-if="time.rain<=2.3">
-                                &#x2602;
-                            </p>
-                            <p v-else-if="time.rain>2.3 && time.rain<3.81">
-                                &#x2614;
-                            </p>
-                            <p v-else-if="time.rain>=3.81">
-                                &#x1F327;
-                            </p>
-                            <p style="float:left; font-size:10px">&nbsp;{{'('+Math.round(time.rain*10)/10+')'}}</p>
-                        </div>
-                        <div class="col-1 ">
-                            {{Math.round(time.wind.speed*10)/10}}&nbsp;<sub>m/s</sub>
-                        </div>
-                        <div class="col-1 ">
-                            {{Math.round(time.main.temp)}}&deg;C
-                        </div>
-                        <div class="col-3 ">
-                            {{Math.floor(time.main.temp_min)}}&deg;C&nbsp;<>
-                                &nbsp;{{Math.round(time.main.temp_max)}}&deg;C&nbsp;
-                        </div>
-                        <div class="col-1">
-                            <div v-if="time.pm2_5!=-1">
-                                <img style="float:left;" v-if="time.pm2_5>10" width="30" height="18" src="/mask.png"
-                                    alt="facemask - poor air quality, you should wear a mask"
-                                    style="background: transparent;" />
-                                <img style="float:left;" v-else width="20" height="20" src="/checkmark.png"
-                                    alt="green checkmark - air quality is fine no mask needed"
-                                    style="background: transparent; margin-left:5px;" />
-                                <p style="float:left; font-size:10px">&nbsp;{{'('+Math.round(time.pm2_5*10)/10+')'}}</p>
-                            </div>
-                            <div v-else class=" justify-content-center" style="margin-left:7px; font-size:20px">&nbsp;-
-                            </div>
-                        </div>
-                    </div>
-                    <div class="row weather-result-times-line  justify-content-center">
-                        <div class="col"></div>
-                    </div>
-                </div>
-            </div>
-        </div>
-        <div class="container summary-table" v-if="!!weatherInfo && !!locationSelected">
-            <div class="row summary-table-header">
-                <h2>Planning Pal <p style="font-size:15px">Helping you plan for the next 5 days</p>
-                </h2>
-            </div>
-            <div class="row">
-                <div class="col summary-box" v-if="summary.rain>2.5"
-                    :style="'background-color:'+ selectRainColor(summary.rain)+';'">
-                    <p>Bring a coat and umbrella there is going to be {{Math.round(summary.rain*10)/10}}mm of rain</p>
-                </div>
-                <div class="col summary-box" v-else-if="summary.rain>1.0"
-                    :style="'background-color:'+ selectRainColor(summary.rain)+';'">
-                    <p>Bring a coat or umbrella there is going to be {{Math.round(summary.rain*10)/10}}mm of rain</p>
-                </div>
-                <div class="col summary-box" v-else :style="'background-color:'+ selectRainColor(summary.rain)+';'">
-                    <p>You can leave the umbrella at home it's probably not going to rain</p>
-                </div>
-                <div class="col summary-box" :style="'background-color:'+ selectTempColor(summary.temp_min)+';'"
-                    v-if="summary.temp_min<13.0">
-                    <p class="">Bring some warm clothes the tempreture is going to get down to
-                        {{Math.round(summary.temp_min*10)/10}}&deg;C</p>
-                </div>
-                <div class="col summary-box" :style="'background-color:'+ selectTempColor(summary.temp_max)+';'"
-                    v-if="summary.temp_max>23.0">
-                    <p class="warm">You might want to pack the shorts it will be
-                        {{Math.round(summary.temp_max*10)/10}}&deg;C at
-                        times</p>
-                </div>
-                <div class="col summary-box"
-                    :style="'background-color:'+ selectTempColor(((summary.temp_max-summary.temp_min)/2)+summary.temp_min)+';'"
-                    v-if="summary.temp_min>=13.0 && summary.temp_max<=23.0">
-                    <p>Don't worry about packing anything to warm or light the temp is going to stay between
-                        {{Math.round(summary.temp_min*10)/10}}&deg;C and {{Math.round(summary.temp_max*10)/10}}&deg;C
-                    </p>
-                </div>
-                <div class="col summary-box" v-if="summary.max_pm2_5>10"
-                    :style="'background-color:'+ selectAirQualityColor(summary.max_pm2_5)+';'">
-                    <p>Bring a mask the PM2.5 will get as high as {{Math.round(summary.max_pm2_5*10)/10}}
-                        μg/m<sup>3</sup> </p>
-                </div>
-                <div class="col summary-box" v-else
-                    :style="'background-color:'+ selectAirQualityColor(summary.max_pm2_5)+';'">
-                    <p>The air quality is going to be good, so leave the mask at home</p>
-                </div>
-            </div>
-        </div>
-        <div class="container random-quote" v-if="!!quote && !!locationSelected">
-            <h3>
-                Inspiration
-                <p style="font-size:15px">Even when the weathers bad</p>
-            </h3>
-            <p class="quote">
-                "{{quote.content}}"
-                <br/>
-                - {{quote.name}}
+<head>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet"
+    integrity="sha384-T3c6CoIi6uLrA9TneNEoa7RxnatzjcDSCmG1MXxSR1GAsXEV/Dwwykc2MPK8M2HN" crossorigin="anonymous">
+    <link rel="stylesheet" href="styles.css">
+</head>
+
+<body>
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.min.js"></script>
+    <script type="module" src="app.js"></script>
+    <div id="app">
+        <div class="container error-container" v-if="!!err">
+            <h1 class="row">ERRRRR :&#40;</h1>
+            <p class="row">Sorry something isn't working</p>
+            <p class="row">revieced error: {{err}}</p>
+            <p class="row">
+                <a href="/">Try reloading?</a>
             </p>
         </div>
+        <div v-else class="container app-container">
+            <div class="row header">
+                <h1>
+                    FuzzyForecaster
+                </h1>
+            </div>
+            <div class="row search-container">
+                <div class="row search-container">
+                    <input class="col-6 search-bar" :value="text"
+                        @input="event => this.searchString = event.target.value" placeholder="Enter location..." />
+                    <button class="col-4 search-button" @click="search()">
+                        Search
+                    </button>
+                    <button class="col-1 x-button align-items-end" v-if="!!weatherInfo && !!locationSelected"
+                        @click="this.locationSelected=undefined">
+                        X
+                    </button>
+                </div>
+                <div class="row search-results" v-if="!locationSelected" v-for="location in locations">
+                    <div class="row search-result"
+                        @click="show(location.lat,location.lon,location.name+' - '+location.country)">
+                        <div class="row">
+                            <div class="col-6">
+                                {{location.name}}&nbsp;&nbsp;&nbsp;&nbsp;{{!!location.state?location.state:""}}
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-6">
+                                {{location.country}}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="row no-search-result" v-if="noResults">
+                    <div class="col">
+                        <h3>Hmmm couldn't find any cities with that name...</h3>
+                    </div>
+                </div>
+            </div>
+            <div class="container weather-container" v-if="!!weatherInfo && !!locationSelected">
+                <div class="row">
+                    <h3 v-if="!!locationSelected">{{locationSelected}}</h3>
+                </div>
+                <div class="row weather-result-header">
+                    <div class="col-1 ">
+                        Feel
+                    </div>
+                    <div class="col-3 ">
+                        Date/Time
+                    </div>
+                    <div class="col-1 ">
+                        Rain<sub>(mm)</sub>
+                    </div>
+                    <div class="col-1 ">
+                        Wind
+                    </div>
+                    <div class="col-1 ">
+                        Temp
+                    </div>
+                    <div class="col-3 ">
+                        Range
+                    </div>
+                    <div class="col-1 ">
+                        <a target=”_blank”
+                            href="https://ww2.arb.ca.gov/resources/inhalable-particulate-matter-and-health#:~:text=Fine%20particulate%20matter%20is%20defined,comprises%20a%20portion%20of%20PM10.">
+                            <p>PM2.5<sub>&nbsp;&#9072;</sub></p>
+                        </a>
+                    </div>
+                </div>
+                <div class="row weather-result "
+                    @click="daySelected===day.dt_str?daySelected=undefined:daySelected=day.dt_str"
+                    v-for="day in weatherInfo">
+                    <div class="col-1 ">
+                        <p v-if="day.daily_info.feels_like<3.0">
+                            &#9924;
+                        </p>
+                        <p v-else-if="day.daily_info.feels_like<8.0">
+                            &#129398;
+                        </p>
+                        <p v-else-if="day.daily_info.feels_like<15.0">
+                            &#128515;
+                        </p>
+                        <p v-else-if="day.daily_info.feels_like<22.0">
+                            &#128526;
+                        </p>
+                        <p v-else-if="day.daily_info.feels_like>=22.0">
+                            &#129397;
+                        </p>
+                    </div>
+                    <div class="col-3 ">{{day.dt_str}}</div>
+                    <div class="col-1 ">
+                        <p v-if="day.daily_info.rain<3.2 && day.daily_info.clouds<=35">
+                            &#x2600;
+                        </p>
+                        <p v-else-if="day.daily_info.rain<3.2 && day.daily_info.clouds>35">
+                            &#x2601;
+                        </p>
+                        <p v-else-if="day.daily_info.rain<=6.0">
+                            &#x2602;
+                        </p>
+                        <p v-else-if="day.daily_info.rain>6.0 && day.daily_info.rain<14.5">
+                            &#x1F327;
+                        </p>
+                        <p v-else-if="day.daily_info.rain>=14.5">
+                            &#x1F327;
+                        </p>
+                        <p style="font-size:10px">&nbsp;{{'('+Math.round(day.daily_info.rain*10)/10+')'}}</p>
+                    </div>
+                    <div class="col-1 ">
+                        {{Math.round(day.daily_info.wind_speed*10)/10}}&nbsp;<sub>m/s</sub>
+                    </div>
+                    <div class="col-1 ">
+                        {{Math.round(day.daily_info.average_temp)}}&deg;C
+                    </div>
+                    <div class="col-3 ">
+                        {{Math.floor(day.daily_info.temp_min)}}&deg;C&nbsp;<>
+                            &nbsp;{{Math.round(day.daily_info.temp_max)}}&deg;C&nbsp;
+                    </div>
+                    <div class="col-1">
+                        <div v-if="day.daily_info.pm2_5!=-1">
+                            <img style="float:left;" v-if="day.daily_info.pm2_5>10" width="30" height="18"
+                                src="/mask.png" alt="facemask - poor air quality, you should wear a mask"
+                                style="background: transparent;" />
+                            <img style="float:left;" v-else width="20" height="20" src="/checkmark.png"
+                                alt="green checkmark - air quality is fine no mask needed"
+                                style="background: transparent; margin-left:5px;" />
+                            <p style="font-size:10px">&nbsp;{{'('+Math.round(day.daily_info.pm2_5*10)/10+')'}}
+                            </p>
+                        </div>
+                        <div v-else class=" justify-content-center" style="margin-left:7px; font-size:20px">-</div>
+                    </div>
+                    <div class="weather-result-times" v-if="daySelected===day.dt_str">
+                        <div class="row weather-result-times-line  justify-content-center">
+                            <div class="col"></div>
+                        </div>
+                        <div class="row weather-result-time" v-for="time in day.times">
+                            <div class="col-1 ">
+                                <p v-if="time.main.feels_like<3.0">
+                                    &#9924;
+                                </p>
+                                <p v-else-if="time.main.feels_like<8.0">
+                                    &#129398;
+                                </p>
+                                <p v-else-if="time.main.feels_like<15.0">
+                                    &#128515;
+                                </p>
+                                <p v-else-if="time.main.feels_like<22.0">
+                                    &#128526;
+                                </p>
+                                <p v-else-if="time.main.feels_like>=22.0">
+                                    &#129397;
+                                </p>
+                            </div>
+                            <div class="col-3 ">{{time.time}}</div>
+                            <div class="col-1 ">
+                                <p v-if="time.rain<1 && time.clouds.all<=35">
+                                    &#x2600;
+                                </p>
+                                <p v-else-if="time.rain<1 && time.clouds.all>35">
+                                    &#x2601;
+                                </p>
+                                <p v-else-if="time.rain<=2.3">
+                                    &#x2602;
+                                </p>
+                                <p v-else-if="time.rain>2.3 && time.rain<3.81">
+                                    &#x2614;
+                                </p>
+                                <p v-else-if="time.rain>=3.81">
+                                    &#x1F327;
+                                </p>
+                                <p style="float:left; font-size:10px">&nbsp;{{'('+Math.round(time.rain*10)/10+')'}}</p>
+                            </div>
+                            <div class="col-1 ">
+                                {{Math.round(time.wind.speed*10)/10}}&nbsp;<sub>m/s</sub>
+                            </div>
+                            <div class="col-1 ">
+                                {{Math.round(time.main.temp)}}&deg;C
+                            </div>
+                            <div class="col-3 ">
+                                {{Math.floor(time.main.temp_min)}}&deg;C&nbsp;<>
+                                    &nbsp;{{Math.round(time.main.temp_max)}}&deg;C&nbsp;
+                            </div>
+                            <div class="col-1">
+                                <div v-if="time.pm2_5!=-1">
+                                    <img style="float:left;" v-if="time.pm2_5>10" width="30" height="18" src="/mask.png"
+                                        alt="facemask - poor air quality, you should wear a mask"
+                                        style="background: transparent;" />
+                                    <img style="float:left;" v-else width="20" height="20" src="/checkmark.png"
+                                        alt="green checkmark - air quality is fine no mask needed"
+                                        style="background: transparent; margin-left:5px;" />
+                                    <p style="float:left; font-size:10px">&nbsp;{{'('+Math.round(time.pm2_5*10)/10+')'}}
+                                    </p>
+                                </div>
+                                <div v-else class=" justify-content-center" style="margin-left:7px; font-size:20px">
+                                    &nbsp;-
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row weather-result-times-line  justify-content-center">
+                            <div class="col"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="container summary-table" v-if="!!weatherInfo && !!locationSelected">
+                <div class="row summary-table-header">
+                    <h2>Planning Pal <p style="font-size:15px">Helping you plan for the next 5 days</p>
+                    </h2>
+                </div>
+                <div class="row">
+                    <div class="col summary-box" v-if="summary.rain>2.5"
+                        :style="'background-color:'+ selectRainColor(summary.rain)+';'">
+                        <p>Bring a coat and umbrella there is going to be {{Math.round(summary.rain*10)/10}}mm of rain
+                        </p>
+                    </div>
+                    <div class="col summary-box" v-else-if="summary.rain>1.0"
+                        :style="'background-color:'+ selectRainColor(summary.rain)+';'">
+                        <p>Bring a coat or umbrella there is going to be {{Math.round(summary.rain*10)/10}}mm of rain
+                        </p>
+                    </div>
+                    <div class="col summary-box" v-else :style="'background-color:'+ selectRainColor(summary.rain)+';'">
+                        <p>You can leave the umbrella at home it's probably not going to rain</p>
+                    </div>
+                    <div class="col summary-box" :style="'background-color:'+ selectTempColor(summary.temp_min)+';'"
+                        v-if="summary.temp_min<13.0">
+                        <p class="">Bring some warm clothes the tempreture is going to get down to
+                            {{Math.round(summary.temp_min*10)/10}}&deg;C</p>
+                    </div>
+                    <div class="col summary-box" :style="'background-color:'+ selectTempColor(summary.temp_max)+';'"
+                        v-if="summary.temp_max>23.0">
+                        <p class="warm">You might want to pack the shorts it will be
+                            {{Math.round(summary.temp_max*10)/10}}&deg;C at
+                            times</p>
+                    </div>
+                    <div class="col summary-box"
+                        :style="'background-color:'+ selectTempColor(((summary.temp_max-summary.temp_min)/2)+summary.temp_min)+';'"
+                        v-if="summary.temp_min>=13.0 && summary.temp_max<=23.0">
+                        <p>Don't worry about packing anything to warm or light the temp is going to stay between
+                            {{Math.round(summary.temp_min*10)/10}}&deg;C and
+                            {{Math.round(summary.temp_max*10)/10}}&deg;C
+                        </p>
+                    </div>
+                    <div class="col summary-box" v-if="summary.max_pm2_5>10"
+                        :style="'background-color:'+ selectAirQualityColor(summary.max_pm2_5)+';'">
+                        <p>Bring a mask the PM2.5 will get as high as {{Math.round(summary.max_pm2_5*10)/10}}
+                            μg/m<sup>3</sup> </p>
+                    </div>
+                    <div class="col summary-box" v-else
+                        :style="'background-color:'+ selectAirQualityColor(summary.max_pm2_5)+';'">
+                        <p>The air quality is going to be good, so leave the mask at home</p>
+                    </div>
+                </div>
+            </div>
+            <div class="container random-quote" v-if="!!quote && !!locationSelected">
+                <h3>
+                    Inspiration
+                    <p style="font-size:15px">Even when the weathers bad</p>
+                </h3>
+                <p class="quote">
+                    "{{quote.content}}"
+                    <br />
+                    - {{quote.name}}
+                </p>
+            </div>
+        </div>
     </div>
-</div>
+</body>
 
-<style>
-    :root {
-        /* Primary Colors */
-        --w-1: #FFBB5C;
-        --w-2: #FF9B50;
-        --w-3: #E25E3E;
-        --w-4: #C63D2F;
-        --w-5: #ce1616;
-        --w-6: #AF0404;
-
-        --c-0: #cdedff;
-        --c-1: #bcd6e2;
-        --c-2: #91C8E4;
-        --c-3: #749BC2;
-        --c-4: #4682A9;
-        --c-5: #4492d5;
-        --c-6: #1a44b7;
-
-        --b-1: #acacac;
-        --b-2: #989898;
-        --b-2p5: #7f7f7f;
-        --b-3: #525252;
-        --b-4: #313131;
-
-        --t-l-1: #e7e7e7;
-        --t-l-2: #dedede;
-        --t-l-3: #808080;
-        --t-d-1: #544e4e;
-        --t-d-2: #252525;
-    }
-
-    .error-container {
-        padding: 20px;
-        background-color: var(--b-1);
-        border: 1px solid --b-2p5;
-        border-radius: 5px;
-        max-width: 400px;
-        margin: 0 auto;
-        margin-top: 60px;
-        font-size: 18px;
-    }
-
-    /* Style for the error message */
-    .error-container h1 {
-        color: var(--w-5);
-        font-size: 36px;
-    }
-
-    /* Style for the error description and links */
-    .error-container p {
-        color: var(--t-d-2);
-        margin: 10px 0;
-    }
-
-    .error-container a {
-        margin: 10px 0;
-        text-decoration: wavy;
-        color: var(--c-6)
-    }
-
-    body {
-        color: var(--t-l-1);
-        background-color: var(--b-4);
-        border-radius: 15px;
-    }
-
-    .app-container a {
-        color: inherit;
-        background-color: inherit;
-        text-decoration: none;
-        float: left;
-        margin: 0px;
-    }
-
-    .app-container p {
-        margin: 0px;
-    }
-
-    .app-container sub {
-        font-size: 10px;
-    }
-
-    a:hover {
-        cursor: pointer;
-    }
-
-    .header {
-        color: var(--w-6)
-    }
-
-    .search-container {
-        margin-bottom: 10px;
-        min-width: 700px
-    }
-
-    .no-search-result {
-        margin-bottom: 5px;
-        margin-top: 5px;
-    }
-
-    .search-result {
-        margin-bottom: 5px;
-        margin-top: 5px;
-        border: 1px;
-        border-radius: 15px;
-        background-color: var(--b-3);
-        border-color: var(--b-4);
-    }
-
-    .search-result:hover {
-        background-color: var(--b-2p5);
-        cursor: pointer;
-    }
-
-    .search-bar {
-        background-color: var(--b-2);
-        border-color: var(--b-3);
-        color: var(--t-l-2);
-        border-radius: 10px;
-        margin-right: 10px;
-    }
-
-    .search-button {
-        background-color: var(--b-2);
-        border-color: var(--b-3);
-        border-radius: 10px;
-        color: var(--t-l-2);
-        margin-right: 10px;
-    }
-
-    .search-bar::placeholder {
-        color: var(--t-l-2)
-    }
-
-    .x-button {
-        background-color: var(--b-3);
-        border-color: var(--w-6);
-        color: var(--w-5);
-        border-radius: 10px;
-        margin-right: 10px;
-    }
-
-    *:focus {
-        outline: 1px;
-        outline-color: var(--c-1);
-    }
-
-    .search-bar:hover {
-        background-color: var(--b-2p5);
-    }
-
-    .weather-container {
-        min-width: 700px;
-    }
-
-    .weather-result-header {
-        margin-bottom: 10px;
-        color: var(--t-l-3);
-        font-size: 20px;
-    }
-
-    .weather-result {
-        margin-bottom: 8px;
-        border-radius: 15px;
-    }
-
-    .weather-result:hover {
-        background-color: var(--b-2p5);
-    }
-
-    .weather-result-times {
-        margin-top: 10px;
-        margin-bottom: 5px;
-    }
-
-    .weather-result-times-line {
-        margin-top: 3px;
-        margin-bottom: 5px;
-        border-radius: 0px;
-        height: 2px;
-        margin-left: 2px;
-        margin-right: 2px;
-        background-color: var(--b-2);
-    }
-
-    .weather-result-time {
-        margin-top: 0px;
-        margin-bottom: 0px;
-    }
-
-    .summary-table {
-        margin-top: 30px;
-    }
-
-    .summary-table-header {
-        margin-bottom: 15px;
-        color: var(--w-6);
-    }
-
-    .summary-box {
-        margin: 5px;
-        padding: 10px;
-        color: var(--t-d-2);
-        background-color: var(--b-3);
-        border-radius: 5px;
-        border-color: var(--b-4);
-        min-width: 100px;
-        text-wrap: wrap;
-    }
-
-    .random-quote {
-        margin-top:35px;
-        margin-bottom: 50px;
-        color: var(--w-6);
-    }
-
-    .random-quote .quote  {
-        color: var(--t-l-3);
-    }
-</style>
-
-<script>
-    const BEURL = "http://localhost:3001/api"
-    const { createApp } = Vue
-
-    createApp({
-        data() {
-            return {
-                searchString: "!!",
-                locationSelected: undefined,
-                daySelected: undefined,
-                locations: [],
-                weatherInfo: undefined,
-                summary: undefined,
-                noResults: false,
-                err: undefined,
-                quote: undefined,
-            }
-        },
-        methods: {
-            search() {
-                this.locationSelected = undefined
-                if (this.searchString == "!!") {
-                    return
-                }
-                try {
-                    axios.get(BEURL + "/locations/" + this.searchString.split(" ").join("_")).then(
-                        (res) => {
-                            if (!!res.data.err) {
-                                this.err = res.data.err
-                            }
-                            this.locations = res.data.locations
-                            this.noResults = res.data.locations.length == 0
-                            this.daySelected = undefined
-                        }
-                    )
-                } catch (err) {
-                    this.err = err
-                }
-            },
-            show(lat, lon, name) {
-                try {
-                    axios.get(BEURL + "/quote").then(
-                        (res) => {
-                            this.quote = res.data
-                        }
-                    )
-                    axios.get(BEURL + "/weather/" + lat + "/" + lon).then(
-                        (res) => {
-                            if (!!res.data.err) {
-                                this.err = res.data.err
-                            }
-                            this.daySelected = undefined
-                            this.summary = res.data.summary
-                            this.weatherInfo = res.data.days
-                            this.locationSelected = name
-                        }
-                    )
-                } catch (err) {
-                    this.err = err
-                }
-            },
-            selectTempColor(temp) {
-                if (temp < 3.0) {
-                    return 'var(--c-4)'
-                } else if (temp < 6.0) {
-                    return 'var(--c-3)'
-                } else if (temp < 9.0) {
-                    return 'var(--c-2)'
-                } else if (temp < 12.0) {
-                    return 'var(--c-1)'
-                } else if (temp < 15.0) {
-                    return 'var(--c-0)'
-                } else if (temp < 18.00) {
-                    return 'var(--w-1)'
-                } else if (temp < 21.0) {
-                    return 'var(--w-2)'
-                } else if (temp < 24.0) {
-                    return 'var(--w-3)'
-                } else if (temp < 27.0) {
-                    return 'var(--w-4)'
-                }
-                return 'var(--w-5)'
-            },
-            selectAirQualityColor(pm2_5) {
-                if (pm2_5 < 2.0) {
-                    return 'white'
-                } else if (pm2_5 < 6.0) {
-                    return 'var(--t-l-1)'
-                } else if (pm2_5 < 12.0) {
-                    return 'var(--t-l-2)'
-                } else if (pm2_5 < 18.0) {
-                    return 'var(--b-1)'
-                } else if (pm2_5 < 22.0) {
-                    return 'var(--b-2)'
-                }
-                return 'var(--b-2.5)'
-            },
-            selectRainColor(rain) {
-                if (rain < 1.0) {
-                    return 'white'
-                } else if (rain < 5.0) {
-                    return 'var(--c-2)'
-                } else if (rain < 10.0) {
-                    return 'var(--c-3)'
-                } else if (rain < 15.0) {
-                    return 'var(--c-4)'
-                } else if (rain < 25.0) {
-                    return 'var(--c-5)'
-                }
-                return 'var(--c-6)'
-            }
-        },
-    }).mount("#app")
-</script>
+</html>
