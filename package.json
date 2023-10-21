@@ -1,5 +1,5 @@
 {
-  "name": "fuccyforecast",
+  "name": "fuzzyforecast",
   "version": "1.0.0",
   "description": "Server for weather api",
   "main": "index.js",

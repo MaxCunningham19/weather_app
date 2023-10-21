@@ -4,6 +4,8 @@ require('dotenv').config()
 
 const router = express.Router()
 
+// declare the router and create a function to handle
+// GET requests to /* URIs
 router
     .route('/:location')
     .get((req, res) => {
