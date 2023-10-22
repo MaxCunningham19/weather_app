@@ -33,13 +33,13 @@
                     <button class="col-4 search-button" @click="search()">
                         Search
                     </button>
-                    <button class="col-1 x-button align-items-end" v-if="!!weatherInfo && !!locationSelected"
+                    <button class="col-1 x-button" v-if="!!weatherInfo && !!locationSelected"
                         @click="this.locationSelected=undefined">
                         X
                     </button>
                 </div>
                 <div class="row search-results" v-if="!locationSelected" v-for="location in locations">
-                    <div class="row search-result"
+                    <div class="row result"
                         @click="show(location.lat,location.lon,location.name+' - '+location.country)">
                         <div class="row">
                             <div class="col-6">
@@ -59,11 +59,11 @@
                     </div>
                 </div>
             </div>
-            <div class="container weather-container" v-if="!!weatherInfo && !!locationSelected">
+            <div class="container forecast-container" v-if="!!weatherInfo && !!locationSelected">
                 <div class="row">
                     <h3 v-if="!!locationSelected">{{locationSelected}}</h3>
                 </div>
-                <div class="row weather-result-header">
+                <div class="row header">
                     <div class="col-1 ">
                         Feel
                     </div>
@@ -89,7 +89,7 @@
                         </a>
                     </div>
                 </div>
-                <div class="row weather-result "
+                <div class="row result "
                     @click="daySelected===day.dt_str?daySelected=undefined:daySelected=day.dt_str"
                     v-for="day in weatherInfo">
                     <div class="col-1 ">
@@ -151,11 +151,11 @@
                         </div>
                         <div v-else class=" justify-content-center" style="margin-left:7px; font-size:20px">-</div>
                     </div>
-                    <div class="weather-result-times" v-if="daySelected===day.dt_str">
-                        <div class="row weather-result-times-line  justify-content-center">
+                    <div class="times" v-if="daySelected===day.dt_str">
+                        <div class="row line  justify-content-center">
                             <div class="col"></div>
                         </div>
-                        <div class="row weather-result-time" v-for="time in day.times">
+                        <div class="row time" v-for="time in day.times">
                             <div class="col-1 ">
                                 <p v-if="time.main.feels_like<3.0">
                                     &#9924;
@@ -218,43 +218,43 @@
                                 </div>
                             </div>
                         </div>
-                        <div class="row weather-result-times-line">
+                        <div class="row line">
                             <div class="col"></div>
                         </div>
                     </div>
                 </div>
             </div>
             <div class="container summary-table" v-if="!!weatherInfo && !!locationSelected">
-                <div class="row summary-table-header">
+                <div class="row header">
                     <h2>Planning Pal <p style="font-size:15px">Helping you plan for the next 5 days</p>
                     </h2>
                 </div>
                 <div class="row">
-                    <div class="col summary-box" v-if="summary.rain>2.5"
+                    <div class="col box" v-if="summary.rain>2.5"
                         :style="'background-color:'+ selectRainColor(summary.rain)+';'">
                         <p>Bring a coat and umbrella there is going to be {{Math.round(summary.rain*10)/10}}mm of rain
                         </p>
                     </div>
-                    <div class="col summary-box" v-else-if="summary.rain>1.0"
+                    <div class="col box" v-else-if="summary.rain>1.0"
                         :style="'background-color:'+ selectRainColor(summary.rain)+';'">
                         <p>Bring a coat or umbrella there is going to be {{Math.round(summary.rain*10)/10}}mm of rain
                         </p>
                     </div>
-                    <div class="col summary-box" v-else :style="'background-color:'+ selectRainColor(summary.rain)+';'">
+                    <div class="col box" v-else :style="'background-color:'+ selectRainColor(summary.rain)+';'">
                         <p>You can leave the umbrella at home it's probably not going to rain</p>
                     </div>
-                    <div class="col summary-box" :style="'background-color:'+ selectTempColor(summary.temp_min)+';'"
+                    <div class="col box" :style="'background-color:'+ selectTempColor(summary.temp_min)+';'"
                         v-if="summary.temp_min<13.0">
                         <p class="">Bring some warm clothes the tempreture is going to get down to
                             {{Math.round(summary.temp_min*10)/10}}&deg;C</p>
                     </div>
-                    <div class="col summary-box" :style="'background-color:'+ selectTempColor(summary.temp_max)+';'"
+                    <div class="col box" :style="'background-color:'+ selectTempColor(summary.temp_max)+';'"
                         v-if="summary.temp_max>23.0">
                         <p class="warm">You might want to pack the shorts it will be
                             {{Math.round(summary.temp_max*10)/10}}&deg;C at
                             times</p>
                     </div>
-                    <div class="col summary-box"
+                    <div class="col box"
                         :style="'background-color:'+ selectTempColor(((summary.temp_max-summary.temp_min)/2)+summary.temp_min)+';'"
                         v-if="summary.temp_min>=13.0 && summary.temp_max<=23.0">
                         <p>Don't worry about packing anything to warm or light the temp is going to stay between
@@ -262,12 +262,12 @@
                             {{Math.round(summary.temp_max*10)/10}}&deg;C
                         </p>
                     </div>
-                    <div class="col summary-box" v-if="summary.max_pm2_5>10"
+                    <div class="col box" v-if="summary.max_pm2_5>10"
                         :style="'background-color:'+ selectAirQualityColor(summary.max_pm2_5)+';'">
                         <p>Bring a mask the PM2.5 will get as high as {{Math.round(summary.max_pm2_5*10)/10}}
                             μg/m<sup>3</sup> </p>
                     </div>
-                    <div class="col summary-box" v-else
+                    <div class="col box" v-else
                         :style="'background-color:'+ selectAirQualityColor(summary.max_pm2_5)+';'">
                         <p>The air quality is going to be good, so leave the mask at home</p>
                     </div>

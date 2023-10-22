@@ -1,5 +1,5 @@
 :root {
-    /* Primary Colors */
+    /* warm colours */
     --w-1: #FFBB5C;
     --w-2: #FF9B50;
     --w-3: #E25E3E;
@@ -7,6 +7,7 @@
     --w-5: #ce1616;
     --w-6: #AF0404;
 
+    /* cold colours */
     --c-0: #cdedff;
     --c-1: #bcd6e2;
     --c-2: #91C8E4;
@@ -15,12 +16,14 @@
     --c-5: #4492d5;
     --c-6: #1a44b7;
 
+    /* background colours */
     --b-1: #acacac;
     --b-2: #989898;
     --b-2p5: #7f7f7f;
     --b-3: #525252;
     --b-4: #313131;
 
+    /* text colours */
     --t-l-1: #e7e7e7;
     --t-l-2: #dedede;
     --t-l-3: #808080;
@@ -28,6 +31,7 @@
     --t-d-2: #252525;
 }
 
+/* error box */
 .error-container {
     padding: 20px;
     background-color: var(--b-1);
@@ -40,30 +44,39 @@
     font-size: 18px;
 }
 
-/* Style for the error message */
+/* error message */
 .error-container h1 {
     color: var(--w-5);
     font-size: 36px;
 }
 
-/* Style for the error description and links */
+/* error description */
 .error-container p {
     color: var(--t-d-2);
     margin: 10px 0;
 }
 
+/* error links */
 .error-container a {
     margin: 10px 0;
     text-decoration: wavy;
     color: var(--c-6)
 }
 
+/* entire document */
 body {
     color: var(--t-l-1);
     background-color: var(--b-4);
     border-radius: 15px;
 }
 
+/* turn off blue focus when a user presses tab */
+*:focus {
+    outline: 1px;
+    outline-color: var(--c-1);
+}
+
+/* links in the document */
 .app-container a {
     color: inherit;
     background-color: inherit;
@@ -72,46 +85,33 @@ body {
     margin: 0px;
 }
 
+/* any paragraphs */
 .app-container p {
     margin: 0px;
 }
 
+/* any subscript in the document */
 .app-container sub {
     font-size: 10px;
 }
 
+/* when a user hovers over a link */
 a:hover {
     cursor: pointer;
 }
 
+/* application header i.e. fuzzyforecaster heading */
 .header {
     color: var(--w-6)
 }
 
+/* contains search bar, search button, and X button */
 .search-container {
     margin-bottom: 10px;
     min-width: 700px
 }
 
-.no-search-result {
-    margin-bottom: 5px;
-    margin-top: 5px;
-}
-
-.search-result {
-    margin-bottom: 5px;
-    margin-top: 5px;
-    border: 1px;
-    border-radius: 15px;
-    background-color: var(--b-3);
-    border-color: var(--b-4);
-}
-
-.search-result:hover {
-    background-color: var(--b-2p5);
-    cursor: pointer;
-}
-
+/* the search bar */
 .search-bar {
     background-color: var(--b-2);
     border-color: var(--b-3);
@@ -120,6 +120,7 @@ a:hover {
     margin-right: 10px;
 }
 
+/* the search button */
 .search-button {
     background-color: var(--b-2);
     border-color: var(--b-3);
@@ -128,10 +129,17 @@ a:hover {
     margin-right: 10px;
 }
 
+/* set the colour of the placeholder text */
 .search-bar::placeholder {
     color: var(--t-l-2)
 }
 
+/* when a user hovers over the search bar */
+.search-bar:hover {
+    background-color: var(--b-2p5);
+}
+
+/* the X button when a location has been selected */
 .x-button {
     background-color: var(--b-3);
     border-color: var(--w-6);
@@ -140,40 +148,63 @@ a:hover {
     margin-right: 10px;
 }
 
-*:focus {
-    outline: 1px;
-    outline-color: var(--c-1);
+/* container when the search returns no locations */
+.no-search-result {
+    margin-bottom: 5px;
+    margin-top: 5px;
 }
 
-.search-bar:hover {
+/* the container for each location */
+.search-results .result {
+    margin-bottom: 5px;
+    margin-top: 5px;
+    border: 1px;
+    border-radius: 15px;
+    background-color: var(--b-3);
+    border-color: var(--b-4);
+}
+
+/* When a user hovers over a location */
+.search-results .result:hover {
     background-color: var(--b-2p5);
+    cursor: pointer;
 }
 
-.weather-container {
+/* container for the forecast results */
+.forecast-container {
     min-width: 700px;
 }
 
-.weather-result-header {
+/* the header for the results table */
+.forecast-container .header {
     margin-bottom: 10px;
     color: var(--t-l-3);
     font-size: 20px;
 }
 
-.weather-result {
+/* the css for the rows in the forecast table
+   these rows are the days  */
+.forecast-container .result {
     margin-bottom: 8px;
     border-radius: 15px;
 }
 
-.weather-result:hover {
+/* when a user hovers over a forecast row */
+.forecast-container .result:hover {
     background-color: var(--b-2p5);
 }
 
-.weather-result-times {
+/* the rows when a user clicks on a date and
+   the times are shown this is the container
+   for all of the times */
+.forecast-container .result .times {
     margin-top: 10px;
     margin-bottom: 5px;
 }
 
-.weather-result-times-line {
+/* this is the css for the line at the top and
+   bottom of the times */
+.forecast-container .result .times .line {
     margin-top: 3px;
     margin-bottom: 5px;
     border-radius: 0px;
@@ -183,21 +214,25 @@ a:hover {
     background-color: var(--b-2);
 }
 
-.weather-result-time {
+/* this is the css for each time in the container */
+.forecast-container .result .times .time {
     margin-top: 0px;
     margin-bottom: 0px;
 }
 
+/* css for planning pal summary table container */
 .summary-table {
     margin-top: 30px;
 }
 
-.summary-table-header {
+/* css for the summary title i.e. planning pal */
+.summary-table .header {
     margin-bottom: 15px;
     color: var(--w-6);
 }
 
-.summary-box {
+/* each of the containers in the summary */
+.summary-table .box {
     margin: 5px;
     padding: 10px;
     color: var(--t-d-2);
@@ -208,12 +243,14 @@ a:hover {
     text-wrap: wrap;
 }
 
+/* css for the quote container */
 .random-quote {
     margin-top: 35px;
     margin-bottom: 50px;
     color: var(--w-6);
 }
 
+/* set the text colour of the quote */
 .random-quote .quote {
     color: var(--t-l-3);
 }

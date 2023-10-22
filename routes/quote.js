@@ -19,7 +19,7 @@ router.route('/').get((_req, res) => {
   try {
     axios.request(options).then((resp) => {
       if (resp.status !== 200) {
-        // return standard quote is response is unsuccesful
+        // return standard quote if response is unsuccesful
         res.json({
           content: "There is no such thing as bad weather, just soft people",
           name: "Bill Bowerman"
